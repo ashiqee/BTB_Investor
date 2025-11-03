@@ -1,0 +1,5 @@
+{
+  "name": "Investor ROI Dashboard",
+  "description": "A sleek dashboard for investors to calculate and visualize their investment returns after accounting for a 30% profit share for management. Enter your investment, cost, and sell price to see an instant breakdown of your profit, returns, and ROI.",
+  "requestFramePermissions": []
+}
