@@ -1,15 +1,13 @@
-
 import React from 'react';
 import InputForm from '../components/InputForm';
 import ResultsDisplay from '../components/ResultsDisplay';
-
+import type { User, Project } from '../types';
 import type { InvestorResult } from '../App';
-import { Project, User } from '@/types';
 
 interface DashboardPageProps {
     user: User;
     projectData: Project;
-    setProjectData: React.Dispatch<React.SetStateAction<Project>>;
+    setProjectData: React.Dispatch<React.SetStateAction<Project | null>>;
     calculations: {
         profit: number;
         managementShare: number;
@@ -20,6 +18,9 @@ interface DashboardPageProps {
         roi: number;
         isValid: boolean;
     };
+    isSaving: boolean;
+    isDirty: boolean;
+    onSave: () => void;
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = (props) => {
@@ -29,7 +30,10 @@ const DashboardPage: React.FC<DashboardPageProps> = (props) => {
                 <InputForm
                     user={props.user}
                     projectData={props.projectData}
-                    setProjectData={props.setProjectData}
+                    setProjectData={props.setProjectData as React.Dispatch<React.SetStateAction<Project>>}
+                    isSaving={props.isSaving}
+                    isDirty={props.isDirty}
+                    onSave={props.onSave}
                 />
             </div>
             <div className="lg:col-span-3">

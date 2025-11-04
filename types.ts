@@ -1,4 +1,3 @@
-
 export interface Investor {
   id: number;
   name: string;
@@ -19,4 +18,9 @@ export interface Project {
     sellPrice: string;
     currency: string;
     investors: Investor[];
+}
+
+export interface ToastMessage {
+  message: string;
+  type: 'success' | 'error';
 }

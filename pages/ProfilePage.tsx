@@ -1,15 +1,14 @@
-
-import { Investor, User } from '@/types';
 import React from 'react';
-
+import type { User, Investor } from '../types';
 
 interface ProfilePageProps {
     user: User;
     investorData?: Investor;
+    projectCurrency: string;
     onNavigate: (page: 'dashboard') => void;
 }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ user, investorData, onNavigate }) => {
+const ProfilePage: React.FC<ProfilePageProps> = ({ user, investorData, projectCurrency, onNavigate }) => {
     const isManagement = user.role === 'management';
 
     return (
@@ -34,7 +33,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, investorData, onNavigat
                 {!isManagement && investorData && (
                      <div className="flex justify-between border-b pb-2 dark:border-gray-700">
                         <span className="font-semibold">Your Investment:</span>
-                        <span>{parseFloat(investorData.amount || '0').toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                        <span>
+                            {parseFloat(investorData.amount || '0').toLocaleString('en-US', { 
+                                style: 'currency', 
+                                currency: projectCurrency 
+                            })}
+                        </span>
                     </div>
                 )}
 
@@ -46,6 +50,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, investorData, onNavigat
                                 <li>View all financial data and reports.</li>
                                 <li>Edit all investment details.</li>
                                 <li>Add or remove investors from the project.</li>
+                                <li>Save project changes to the database.</li>
                             </>
                         ) : (
                             <>

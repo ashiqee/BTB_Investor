@@ -1,18 +1,25 @@
-
 import React from 'react';
 import { CurrencyIcon } from './icons/CurrencyIcon';
-import type { User, Project, Investor } from '@/types';
+
+import type { User, Project, Investor } from '../types';
+import { Spinner } from './Spinner';
 
 interface InputFormProps {
   projectData: Project;
   setProjectData: React.Dispatch<React.SetStateAction<Project>>;
   user: User;
+  isSaving: boolean;
+  isDirty: boolean;
+  onSave: () => void;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   projectData,
   setProjectData,
-  user
+  user,
+  isSaving,
+  isDirty,
+  onSave
 }) => {
   const isManagement = user.role === 'management';
   const { investors, cost, sellPrice, currency } = projectData;
@@ -21,37 +28,45 @@ const InputForm: React.FC<InputFormProps> = ({
     if (field === 'cost' || field === 'sellPrice') {
        if (!/^\d*\.?\d*$/.test(value)) return;
     }
-    setProjectData(prev => ({ ...prev, [field]: value }));
+    setProjectData(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
 
   const handleInvestorChange = (id: number, field: 'name' | 'amount', value: string) => {
     if (field === 'amount' && !/^\d*\.?\d*$/.test(value)) {
       return;
     }
-    const updatedInvestors = investors.map(inv => 
-      inv.id === id ? { ...inv, [field]: value } : inv
-    );
-    setProjectData(prev => ({ ...prev, investors: updatedInvestors }));
+    setProjectData(prev => {
+        if (!prev) return null;
+        const updatedInvestors = prev.investors.map(inv => 
+          inv.id === id ? { ...inv, [field]: value } : inv
+        );
+        return { ...prev, investors: updatedInvestors };
+    });
   };
 
   const addInvestor = () => {
-    // Find a new unique ID that isn't already in use
-    const existingIds = new Set(investors.map(i => i.id));
-    let newId = Date.now();
-    while (existingIds.has(newId)) {
-        newId++;
-    }
+    setProjectData(prev => {
+        if (!prev) return null;
+        const existingIds = new Set(prev.investors.map(i => i.id));
+        let newId = Date.now();
+        while (existingIds.has(newId)) {
+            newId++;
+        }
 
-    const newInvestor: Investor = { 
-        id: newId, 
-        name: `Investor ${investors.length + 1}`, 
-        amount: '' 
-    };
-    setProjectData(prev => ({ ...prev, investors: [...prev.investors, newInvestor] }));
+        const newInvestor: Investor = { 
+            id: newId, 
+            name: `Investor ${prev.investors.length + 1}`, 
+            amount: '' 
+        };
+        return { ...prev, investors: [...prev.investors, newInvestor] };
+    });
   };
 
   const removeInvestor = (id: number) => {
-    setProjectData(prev => ({ ...prev, investors: prev.investors.filter(inv => inv.id !== id) }));
+    setProjectData(prev => {
+      if (!prev) return null;
+      return { ...prev, investors: prev.investors.filter(inv => inv.id !== id) }
+    });
   };
 
   return (
@@ -165,6 +180,23 @@ const InputForm: React.FC<InputFormProps> = ({
             />
           </div>
         </div>
+        {isManagement && (
+            <div className="pt-2">
+                <button
+                    onClick={onSave}
+                    disabled={isSaving || !isDirty}
+                    className="w-full flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 disabled:bg-gray-400 disabled:dark:bg-gray-600 disabled:cursor-not-allowed disabled:scale-100"
+                >
+                    {isSaving ? <><Spinner /> Saving...</> : 'Save Changes'}
+                </button>
+                 {!isSaving && !isDirty && (
+                     <p className="text-center text-xs text-gray-500 mt-2">All changes are saved.</p>
+                 )}
+                 {!isSaving && isDirty && (
+                     <p className="text-center text-xs text-yellow-500 mt-2">You have unsaved changes.</p>
+                 )}
+            </div>
+        )}
       </div>
     </div>
   );
